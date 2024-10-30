@@ -6,5 +6,5 @@ import (
 
 type Interface interface {
 	CreatePost(models.Post) error
-	Posts(int) []models.Post
+	Posts(int) ([]models.Post, error)
 }
