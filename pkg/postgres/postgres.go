@@ -11,6 +11,7 @@ type Store struct {
 	db *pgxpool.Pool
 }
 
+// Конструктор объекта БД
 func New(connstr string) (*Store, error) {
 	db, err := pgxpool.Connect(context.Background(), connstr)
 	if err != nil {
@@ -24,29 +25,34 @@ func New(connstr string) (*Store, error) {
 	return &s, nil
 }
 
-func (s *Store) CreatePost(p models.Post) error {
-	_, err := s.db.Exec(context.Background(), `
+// Загружает в БД посты
+func (s *Store) CreatePosts(posts []models.Post) error {
+	for _, p := range posts {
+		_, err := s.db.Exec(context.Background(), `
 		INSERT INTO posts (title, content, published_at, link)
 		VALUES ($1, $2, $3, $4)`,
-		p.Title, p.Content, p.PublishedAt, p.Link)
+			p.Title, p.Content, p.PubTime, p.Link)
 
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
+
 	return nil
 }
 
+// Возвращает последние n постов
 func (s *Store) Posts(n int) ([]models.Post, error) {
 	rows, err := s.db.Query(context.Background(), `
 		SELECT
-		posts.id,
-		posts.title,
-		posts.content,
-		posts.published_at,
-		posts.link
+		id,
+		title,
+		content,
+		published_at,
+		link
 		FROM posts
-		ORDER BY DESC
-		LIMIT ($1)`,
+		ORDER BY published_at DESC
+		LIMIT $1`,
 		n)
 
 	if err != nil {
@@ -61,7 +67,7 @@ func (s *Store) Posts(n int) ([]models.Post, error) {
 			&p.ID,
 			&p.Title,
 			&p.Content,
-			&p.PublishedAt,
+			&p.PubTime,
 			&p.Link,
 		)
 
