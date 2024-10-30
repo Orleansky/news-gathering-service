@@ -1,8 +1,8 @@
 DROP TABLE IF EXISTS posts;
-CREATE TABLE posts{
+CREATE TABLE posts(
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     content TEXT NOT NULL,
-    published_at TIMESTAMPTZ NOT NULL,
-    link TEXT NOT NULL UNIQUE,
-}
+    published_at INTEGER DEFAULT 0,
+    link TEXT NOT NULL UNIQUE
+)
